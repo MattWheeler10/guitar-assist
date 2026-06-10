@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node -e \"const f=require\\('fs'\\); const d=f.readFileSync\\('C:/Users/Matthew Wheeler/Documents/Projects/guitar-assist/node_modules/@tombatossals/chords-db/src/db/guitar/chords/E/m.json', 'utf8'\\); const j=JSON.parse\\(d\\); console.log\\(JSON.stringify\\(j.positions[0], null, 2\\)\\);\")",
+      "Bash(node -e ' *)",
+      "PowerShell(head -150)",
+      "Bash(npx vue-tsc *)",
+      "Bash(sed -i 's/i<40/i<160/' verify2.mjs)",
+      "Bash(node verify2.mjs)",
+      "Bash(git init *)",
+      "Bash(git remote *)",
+      "Bash(Remove-Item verify-*.png)",
+      "Bash(cd \"c:\\\\Users\\\\Matthew Wheeler\\\\Documents\\\\Projects\\\\guitar-assist\" && rm verify-*.png)",
+      "Bash(git add *)"
+    ],
+    "additionalDirectories": [
+      "C:\\Users\\Matthew Wheeler\\Documents\\Projects\\guitar-assist"
+    ]
+  }
+}

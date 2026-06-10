@@ -1,0 +1,43 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Nunito', system-ui, sans-serif;
+  --font-mono: 'Courier New', Courier, monospace;
+}
+
+body {
+  background-color: #FFFBF5;
+  color: #1C1917;
+  font-family: 'Nunito', system-ui, sans-serif;
+}
+
+h1, h2, h3 {
+  font-family: 'Fredoka', system-ui, sans-serif;
+}
+
+.chord {
+  color: #B45309;
+  font-weight: 700;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.85em;
+}
+
+.tab-line {
+  font-family: 'Courier New', Courier, monospace;
+  white-space: pre;
+  line-height: 1.6;
+}
+
+.section-header {
+  color: #D97706;
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-family: 'Nunito', system-ui, sans-serif;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #FEF3C7; }
+::-webkit-scrollbar-thumb { background: #FCD34D; border-radius: 3px; }
