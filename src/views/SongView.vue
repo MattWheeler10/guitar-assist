@@ -8,13 +8,20 @@
         </svg>
       </div>
       <p class="text-stone-600 font-medium">Song not found.</p>
-      <router-link to="/" class="text-amber-500 text-sm hover:underline mt-2 inline-block">← Back to Songbook</router-link>
+      <router-link to="/" class="inline-flex items-center gap-1.5 mt-3 px-3 py-1.5 rounded-lg bg-stone-100 hover:bg-amber-100 text-stone-500 hover:text-amber-700 text-sm font-medium transition-all cursor-pointer group">
+        <svg class="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/>
+        </svg>
+        Back to Songbook
+      </router-link>
     </div>
 
     <template v-else>
       <!-- Back -->
-      <router-link to="/" class="inline-flex items-center gap-1.5 text-xs text-stone-400 hover:text-amber-600 transition-colors mb-8 group cursor-pointer">
-        <span class="group-hover:-translate-x-0.5 transition-transform">←</span>
+      <router-link to="/" class="inline-flex items-center gap-1.5 mb-8 px-3 py-1.5 rounded-lg bg-stone-100 hover:bg-amber-100 text-stone-500 hover:text-amber-700 text-sm font-medium transition-all cursor-pointer group">
+        <svg class="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/>
+        </svg>
         Back to Songbook
       </router-link>
 
@@ -627,6 +634,15 @@ const struggledChords = computed(() => {
   return Object.entries(counts).sort((a, b) => b[1] - a[1])
 })
 
+// When a capo is used the player's physical chord shapes sound N semitones
+// higher than written. Shift the tab's pitch class up by the capo fret so
+// the detected (actual pitch) ID can be matched against it.
+function capoShiftedId(id: string, capo: number): string {
+  if (!capo) return id
+  const [pcStr, minorStr] = id.split(':')
+  return `${(parseInt(pcStr ?? '0', 10) + capo) % 12}:${minorStr}`
+}
+
 let cooldownUntil = 0
 const COOLDOWN_MS = 650
 // Track the last chord ID that triggered an advance, and whether silence has
@@ -733,7 +749,8 @@ watch(
     const expected = steps.value[currentStep.value]
     if (!expected) return
 
-    if (id === expected.id) {
+    const expectedId = capoShiftedId(expected.id, song.value?.capo ?? 0)
+    if (id === expectedId) {
       stepStatus.value = { ...stepStatus.value, [currentStep.value]: 'correct' }
       lastAdvanceId = id
       heardSilenceSinceAdvance = false

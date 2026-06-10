@@ -2,8 +2,11 @@
   <main class="min-h-screen bg-stone-50">
     <div class="max-w-sm mx-auto px-6 py-5 flex flex-col min-h-screen">
       <!-- Nav -->
-      <router-link to="/" class="text-sm text-stone-400 hover:text-stone-600 transition-colors mb-5 self-start">
-        ← Home
+      <router-link to="/" class="inline-flex items-center gap-1.5 self-start mb-5 px-3 py-1.5 rounded-lg bg-stone-100 hover:bg-amber-100 text-stone-500 hover:text-amber-700 text-sm font-medium transition-all cursor-pointer group">
+        <svg class="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/>
+        </svg>
+        Home
       </router-link>
 
       <!-- IDLE -->
@@ -65,21 +68,61 @@
 
           <!-- Chord type -->
           <div>
-            <p class="text-xs font-semibold tracking-wide uppercase text-stone-400 mb-2">Chord Type</p>
+            <div class="flex items-center justify-between mb-2">
+              <p class="text-xs font-semibold tracking-wide uppercase text-stone-400">Chord Types</p>
+              <p class="text-[10px] text-stone-400">{{ activePoolSize }} chords in pool</p>
+            </div>
             <div class="grid grid-cols-2 gap-2">
               <button
-                v-for="opt in CHORD_OPTIONS" :key="opt.key"
-                @click="settingChords = opt.key"
-                class="py-2.5 px-3 rounded-lg border text-left transition-all cursor-pointer"
-                :class="settingChords === opt.key
+                v-for="cat in CHORD_CATEGORIES" :key="cat.key"
+                @click="toggleCategory(cat.key)"
+                class="py-2.5 px-3 rounded-lg border text-left transition-all cursor-pointer relative"
+                :class="settingCategories.includes(cat.key)
                   ? 'bg-amber-500 border-amber-500 text-white shadow-sm'
                   : 'border-stone-200 text-stone-600 hover:border-amber-300 hover:bg-amber-50'"
               >
-                <p class="text-sm font-semibold leading-none">{{ opt.label }}</p>
-                <p class="text-xs mt-0.5 leading-none"
-                   :class="settingChords === opt.key ? 'text-amber-100' : 'text-stone-400'">
-                  {{ opt.note }}
+                <div class="flex items-start justify-between gap-1">
+                  <p class="text-sm font-semibold leading-none">{{ cat.label }}</p>
+                  <svg v-if="settingCategories.includes(cat.key)" class="w-3 h-3 shrink-0 mt-0.5 text-white/80" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                  </svg>
+                </div>
+                <p class="text-xs mt-0.5 leading-snug"
+                   :class="settingCategories.includes(cat.key) ? 'text-amber-100' : 'text-stone-400'">
+                  {{ cat.note }}
                 </p>
+              </button>
+            </div>
+          </div>
+
+          <!-- Show chord shapes -->
+          <div>
+            <p class="text-xs font-semibold tracking-wide uppercase text-stone-400 mb-2">Show Chord Diagram</p>
+            <div class="flex gap-2">
+              <button
+                @click="settingShowDiagram = true"
+                class="flex-1 py-2 rounded-lg border text-sm font-semibold transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                :class="settingShowDiagram
+                  ? 'bg-amber-500 border-amber-500 text-white shadow-sm'
+                  : 'border-stone-200 text-stone-500 hover:border-amber-300 hover:text-amber-600'"
+              >
+                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+                Show
+              </button>
+              <button
+                @click="settingShowDiagram = false"
+                class="flex-1 py-2 rounded-lg border text-sm font-semibold transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                :class="!settingShowDiagram
+                  ? 'bg-stone-600 border-stone-600 text-white shadow-sm'
+                  : 'border-stone-200 text-stone-500 hover:border-stone-400 hover:text-stone-700'"
+              >
+                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88"/>
+                </svg>
+                Hide
               </button>
             </div>
           </div>
@@ -112,7 +155,7 @@
         </div>
 
         <!-- Chord diagram -->
-        <div
+        <div v-if="settingShowDiagram"
           class="rounded-2xl border bg-white shadow-md p-5 flex items-center justify-center transition-all duration-200"
           :class="{
             'border-stone-200': phase !== 'result',
@@ -253,44 +296,108 @@ const NUM_FRETS = 4
 const ROUND_OPTIONS = [5, 10, 15, 20] as const
 const TIMER_OPTIONS = [3, 5, 7, 10] as const
 
-type ChordPoolKey = 'majors' | 'minors' | 'mixed' | 'all-majors'
-
 interface Chord { name: string; id: string }
 
-const CHORD_OPTIONS: { key: ChordPoolKey; label: string; note: string }[] = [
-  { key: 'majors',     label: 'Majors',     note: 'C D E F G A' },
-  { key: 'minors',     label: 'Minors',     note: 'Am Em Dm Bm Fm Gm' },
-  { key: 'mixed',      label: 'Mixed',      note: 'Common maj + min' },
-  { key: 'all-majors', label: 'All Majors', note: 'All 12 incl. sharps' },
+interface ChordCategory {
+  key: string
+  label: string
+  note: string
+  chords: Chord[]
+}
+
+const CHORD_CATEGORIES: ChordCategory[] = [
+  {
+    key: 'beginner',
+    label: 'Beginner',
+    note: 'G C D Em Am',
+    chords: [
+      { name: 'G', id: '7:0' }, { name: 'C', id: '0:0' }, { name: 'D', id: '2:0' },
+      { name: 'Em', id: '4:1' }, { name: 'Am', id: '9:1' },
+    ],
+  },
+  {
+    key: 'open-majors',
+    label: 'Open Majors',
+    note: 'C D E G A — no barre',
+    chords: [
+      { name: 'C', id: '0:0' }, { name: 'D', id: '2:0' }, { name: 'E', id: '4:0' },
+      { name: 'G', id: '7:0' }, { name: 'A', id: '9:0' },
+    ],
+  },
+  {
+    key: 'open-minors',
+    label: 'Open Minors',
+    note: 'Am Em Dm — no barre',
+    chords: [
+      { name: 'Am', id: '9:1' }, { name: 'Em', id: '4:1' }, { name: 'Dm', id: '2:1' },
+    ],
+  },
+  {
+    key: 'barre',
+    label: 'Barre Chords',
+    note: 'F Bm Bb B Gm Fm',
+    chords: [
+      { name: 'F', id: '5:0' }, { name: 'Bm', id: '11:1' }, { name: 'Bb', id: '10:0' },
+      { name: 'B', id: '11:0' }, { name: 'Gm', id: '7:1' }, { name: 'Fm', id: '5:1' },
+    ],
+  },
+  {
+    key: 'all-majors',
+    label: 'All 12 Majors',
+    note: 'Every chromatic major',
+    chords: [
+      { name: 'C', id: '0:0' }, { name: 'C#', id: '1:0' }, { name: 'D', id: '2:0' },
+      { name: 'Eb', id: '3:0' }, { name: 'E', id: '4:0' }, { name: 'F', id: '5:0' },
+      { name: 'F#', id: '6:0' }, { name: 'G', id: '7:0' }, { name: 'Ab', id: '8:0' },
+      { name: 'A', id: '9:0' }, { name: 'Bb', id: '10:0' }, { name: 'B', id: '11:0' },
+    ],
+  },
+  {
+    key: 'all-minors',
+    label: 'All 12 Minors',
+    note: 'Every chromatic minor',
+    chords: [
+      { name: 'Cm', id: '0:1' }, { name: 'C#m', id: '1:1' }, { name: 'Dm', id: '2:1' },
+      { name: 'Ebm', id: '3:1' }, { name: 'Em', id: '4:1' }, { name: 'Fm', id: '5:1' },
+      { name: 'F#m', id: '6:1' }, { name: 'Gm', id: '7:1' }, { name: 'Abm', id: '8:1' },
+      { name: 'Am', id: '9:1' }, { name: 'Bbm', id: '10:1' }, { name: 'Bm', id: '11:1' },
+    ],
+  },
 ]
 
-const CHORD_POOLS: Record<ChordPoolKey, Chord[]> = {
-  'majors': [
-    { name: 'A', id: '9:0' }, { name: 'C', id: '0:0' }, { name: 'D', id: '2:0' },
-    { name: 'E', id: '4:0' }, { name: 'F', id: '5:0' }, { name: 'G', id: '7:0' },
-  ],
-  'minors': [
-    { name: 'Am', id: '9:1' }, { name: 'Em', id: '4:1' }, { name: 'Dm', id: '2:1' },
-    { name: 'Bm', id: '11:1' }, { name: 'Fm', id: '5:1' }, { name: 'Gm', id: '7:1' },
-  ],
-  'mixed': [
-    { name: 'A', id: '9:0' }, { name: 'C', id: '0:0' }, { name: 'D', id: '2:0' },
-    { name: 'E', id: '4:0' }, { name: 'F', id: '5:0' }, { name: 'G', id: '7:0' },
-    { name: 'Am', id: '9:1' }, { name: 'Em', id: '4:1' }, { name: 'Dm', id: '2:1' },
-    { name: 'Bm', id: '11:1' },
-  ],
-  'all-majors': [
-    { name: 'C', id: '0:0' }, { name: 'C#', id: '1:0' }, { name: 'D', id: '2:0' },
-    { name: 'Eb', id: '3:0' }, { name: 'E', id: '4:0' }, { name: 'F', id: '5:0' },
-    { name: 'F#', id: '6:0' }, { name: 'G', id: '7:0' }, { name: 'Ab', id: '8:0' },
-    { name: 'A', id: '9:0' }, { name: 'Bb', id: '10:0' }, { name: 'B', id: '11:0' },
-  ],
+function buildPool(categories: string[]): Chord[] {
+  const seen = new Set<string>()
+  const pool: Chord[] = []
+  for (const cat of CHORD_CATEGORIES) {
+    if (!categories.includes(cat.key)) continue
+    for (const chord of cat.chords) {
+      if (!seen.has(chord.id)) {
+        seen.add(chord.id)
+        pool.push(chord)
+      }
+    }
+  }
+  return pool
 }
 
 // Settings (persist across games)
 const settingRounds = ref<number>(10)
 const settingTimer = ref<number>(5)
-const settingChords = ref<ChordPoolKey>('majors')
+const settingCategories = ref<string[]>(['beginner'])
+const settingShowDiagram = ref<boolean>(true)
+
+const activePoolSize = computed(() => buildPool(settingCategories.value).length)
+
+function toggleCategory(key: string) {
+  const current = settingCategories.value
+  if (current.includes(key)) {
+    // Don't allow deselecting the last category
+    if (current.length === 1) return
+    settingCategories.value = current.filter(k => k !== key)
+  } else {
+    settingCategories.value = [...current, key]
+  }
+}
 
 // Active game config (snapshotted at start so mid-game changes don't break things)
 const totalRounds = ref(10)
@@ -309,7 +416,7 @@ const queue = ref<Chord[]>([])
 let timerInterval: ReturnType<typeof setInterval> | null = null
 let resultTimeout: ReturnType<typeof setTimeout> | null = null
 
-const currentChord = computed(() => queue.value[roundIndex.value] ?? CHORD_POOLS['majors'][0]!)
+const currentChord = computed(() => queue.value[roundIndex.value] ?? CHORD_CATEGORIES[0]!.chords[0]!)
 const currentPosition = computed<ChordPosition | null>(() => lookupChord(currentChord.value.name))
 
 function buildQueue(pool: Chord[], rounds: number): Chord[] {
@@ -329,7 +436,7 @@ async function startGame() {
   if (error.value) return
   totalRounds.value = settingRounds.value
   timerSecs.value = settingTimer.value
-  queue.value = buildQueue(CHORD_POOLS[settingChords.value], totalRounds.value)
+  queue.value = buildQueue(buildPool(settingCategories.value), totalRounds.value)
   roundIndex.value = 0
   score.value = 0
   timeLeft.value = timerSecs.value
