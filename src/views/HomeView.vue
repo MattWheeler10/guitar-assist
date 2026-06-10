@@ -10,7 +10,7 @@
           </h1>
           <p class="text-stone-500 text-sm mt-2">Know it, learning it, or dreaming about it — all in one place.</p>
         </div>
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-3 flex-wrap justify-end">
           <button
             @click="showRandom = true"
             :disabled="!allSongs.length"
@@ -96,6 +96,39 @@
       />
     </div>
 
+    <!-- Songbook backup -->
+    <div class="mt-10 pt-8 border-t border-stone-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div>
+        <p class="text-sm font-semibold text-stone-700">Backup your songbook</p>
+        <p class="text-xs text-stone-400 mt-0.5">Export to save your songs, import to restore them on another device.</p>
+      </div>
+      <div class="flex items-center gap-2 shrink-0">
+        <button
+          @click="exportSongs"
+          :disabled="!allSongs.length"
+          class="flex items-center gap-2 border border-stone-300 text-stone-600 hover:border-teal-400 hover:text-teal-600 hover:bg-teal-50 disabled:opacity-40 disabled:cursor-not-allowed font-semibold text-sm px-4 py-2 rounded-xl transition-all cursor-pointer"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5m0 0l5-5m-5 5V4"/>
+          </svg>
+          Export
+        </button>
+        <button
+          @click="triggerImport"
+          class="flex items-center gap-2 border border-stone-300 text-stone-600 hover:border-teal-400 hover:text-teal-600 hover:bg-teal-50 font-semibold text-sm px-4 py-2 rounded-xl transition-all cursor-pointer"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 14l5-5m0 0l5 5m-5-5v12"/>
+          </svg>
+          Import
+        </button>
+        <input ref="importInput" type="file" accept=".json" class="hidden" @change="importSongs" />
+      </div>
+    </div>
+    <p v-if="importError" class="mt-2 text-xs text-red-500 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+      {{ importError }}
+    </p>
+
     <!-- Add Song Modal -->
     <AddSongModal v-if="showModal" @close="showModal = false" />
 
@@ -112,6 +145,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useSongs } from '../composables/useSongs'
+import type { Song } from '../data/songs'
 import SongSection from '../components/SongSection.vue'
 import AddSongModal from '../components/AddSongModal.vue'
 import RandomSongModal from '../components/RandomSongModal.vue'
@@ -119,9 +153,51 @@ import RandomSongModal from '../components/RandomSongModal.vue'
 const { songs, getSongsByStatus } = useSongs()
 const showModal = ref(false)
 const showRandom = ref(false)
+const importInput = ref<HTMLInputElement | null>(null)
+const importError = ref<string | null>(null)
 
 const knownSongs = computed(() => getSongsByStatus('know'))
 const learningSongs = computed(() => getSongsByStatus('learning'))
 const futureSongs = computed(() => getSongsByStatus('future'))
 const allSongs = computed(() => songs.value)
+
+function exportSongs() {
+  const json = JSON.stringify(songs.value, null, 2)
+  const blob = new Blob([json], { type: 'application/json' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `guitar-assist-songs-${new Date().toISOString().slice(0, 10)}.json`
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
+function triggerImport() {
+  importError.value = null
+  importInput.value?.click()
+}
+
+function importSongs(e: Event) {
+  const file = (e.target as HTMLInputElement).files?.[0]
+  if (!file) return
+  const reader = new FileReader()
+  reader.onload = () => {
+    try {
+      const parsed = JSON.parse(reader.result as string) as unknown
+      if (!Array.isArray(parsed)) throw new Error('File does not contain a song list.')
+      // Basic shape check on first item
+      const first = parsed[0] as Record<string, unknown>
+      if (parsed.length > 0 && (!first.id || !first.title || !first.artist)) {
+        throw new Error('File does not look like a GuitarAssist export.')
+      }
+      songs.value = parsed as Song[]
+    } catch (err) {
+      importError.value = err instanceof Error ? err.message : 'Could not read file.'
+    } finally {
+      // Reset so the same file can be re-selected if needed
+      if (importInput.value) importInput.value.value = ''
+    }
+  }
+  reader.readAsText(file)
+}
 </script>
